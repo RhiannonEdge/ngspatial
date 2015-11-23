@@ -641,7 +641,7 @@ summary.autologistic = function(object, alpha = 0.05, digits = 4, ...)
 #' summary(fit)
 #' } 
 
-autologistic = function(formula, data, A, method = c("PL", "Bayes"), model = TRUE,
+autologisticRE = function(formula, data, A, weights, method = c("PL", "Bayes"), model = TRUE,
                         x = FALSE, y = FALSE, verbose = FALSE, control = list())
 {
     cl = match.call()   
@@ -660,7 +660,7 @@ autologistic = function(formula, data, A, method = c("PL", "Bayes"), model = TRU
     X = model.matrix(mt, mf)
     if (! is.vector(Z) || ! (Z == 0 || Z == 1))
         stop("The response must be a binary vector.")
-    if (sum(c(nrow(X), nrow(A)) != length(Z)) > 0)
+    if (sum(c(nrow(X), nrow(A)) != length(Z)) > 0)https://www.google.co.uk/search?client=ubuntu&channel=fs&q=spatially+confounded+autologistic&ie=utf-8&oe=utf-8&gfe_rd=cr&ei=3AdTVvjvHoWN1AWA67WICg
         stop("The supplied response vector/design matrix/adjacency matrix are not conformable.")
     method = match.arg(method)
     if (! is.logical(verbose) || length(verbose) > 1)
@@ -724,6 +724,7 @@ autologistic = function(formula, data, A, method = c("PL", "Bayes"), model = TRU
         p = p + 1
         beta = as.matrix(fit$sample[, -p])
         eta = as.vector(fit$sample[, p])
+        weights = as.vector(weights)
         n = length(Z)
         linear.predictors = numeric(n)
         fitted.values = numeric(n)
@@ -733,7 +734,7 @@ autologistic = function(formula, data, A, method = c("PL", "Bayes"), model = TRU
             Xbeta = X %*% beta[j, ]
             mu = exp(Xbeta)
             mu = mu / (1 + mu)
-            auto = A %*% (Z - mu)
+            auto = A %*% (Z - mu) %*% weights
             linpred = Xbeta + eta[j] * auto
             linear.predictors = linear.predictors + linpred / iter
             fv = exp(linpred)
